@@ -1,19 +1,19 @@
 const router = require("express").Router();
 const { PrismaClient } = require("@prisma/client");
-const bcrypt = require("bcryptjs");
+const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 
 const prisma = new PrismaClient();
 
 router.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { nom, email, password } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.utilisateur.create({
       data: {
-        username,
+        nom,
         email,
         password: hashedPassword,
       },
@@ -26,42 +26,28 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const user = await prisma.user.findUnique({
-      where: {
-        username,
-      },
-    });
+    const user = await prisma.utilisateur.findUnique({ where: { email } });
 
     if (!user) {
-      res.status(401).json("Wrong credentials!");
-      return;
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      res.status(401).json("Wrong credentials!");
-      return;
+      return res.status(401).json({ message: "Mot de passe incorrect." });
     }
 
-    const accessToken = jwt.sign(
-      {
-        id: user.id,
-        isAdmin: user.isAdmin,
-      },
-      process.env.JWT_SEC,
-      { expiresIn: "3d" }
-    );
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SEC, { expiresIn: "1h" });
 
-    const { password: _, ...others } = user;
-
-    res.status(200).json({ ...others, accessToken });
+    res.status(200).json({ token });
   } catch (err) {
     res.status(500).json(err);
   }
 });
+
 
 module.exports = router;

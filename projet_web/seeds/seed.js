@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker');
 const {PrismaClient} = require('@prisma/client');
+const bcrypt = require('bcrypt');
 const prisma = new PrismaClient;
 
 //Fonction pour supprimer les données de la DB
@@ -17,11 +18,13 @@ async function clearDatabase() {
 //Fonction pour créer les utilisateurs AUTHORS
 async function createAuthorUsers() {
     for(let i=0;i<10;i++) {
+        const Randompassword = "AUTHOR";
+        const hashedPassword = await bcrypt.hash(Randompassword, 10);
         await prisma.utilisateur.create({
         data: {
             nom: faker.name.firstName(),
             email: faker.internet.email(),
-            password: faker.internet.password(),
+            password: hashedPassword,
             role: 'AUTHOR'
         },
         });
@@ -31,11 +34,13 @@ async function createAuthorUsers() {
 
 //Fonction pour créer l'utilisateur ADMIN
 async function createAdminUser() {
+    const Randompassword = "ADMIN";
+    const hashedPassword = await bcrypt.hash(Randompassword, 10);
     await prisma.utilisateur.create({
         data:{
             nom: faker.name.firstName(),
             email: faker.internet.email(),
-            password: faker.internet.password(),
+            password: hashedPassword,
             role: 'ADMIN'
         }
     })

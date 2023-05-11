@@ -1,10 +1,12 @@
 const router = require("express").Router();
 const {PrismaClient} = require('@prisma/client');
+const bcrypt = require('bcrypt');
+const { verifyToken, verifyTokenAndAuthorization, verifyTokenAndAdmin } = require('../verifyToken');
 const prisma = new PrismaClient;
 
 //GET USERS
 
-router.get('/', async (req,res) => {
+router.get('/', verifyTokenAndAdmin ,async (req,res) => {
     const take = parseInt(req.query.take) || 10;
     const skip = parseInt(req.query.skip) || 0;
 
@@ -24,7 +26,7 @@ router.get('/', async (req,res) => {
 
 //GET USER BY ID 
 
-router.get("/:id", async (req,res) => {
+router.get("/:id", verifyTokenAndAuthorization , async (req,res) => {
     try{
        const User = await prisma.utilisateur.findUnique({
         where:{
@@ -46,7 +48,7 @@ router.post('/', async (req,res) => {
             data: {
                 nom : req.body.nom,
                 email : req.body.email,
-                password : req.body.password,
+                password : bcrypt.hash(req.body.password,10),
                 role : req.body.role
             }
         })
@@ -65,7 +67,7 @@ router.patch('/', async (req,res) => {
             data : {
                 nom : req.body.nom,
                 email : req.body.email,
-                password : req.body.password,
+                password : bcrypt.hash(req.body.password,10),
             }
         })
         res.status(200).json(`Utilisateur modifié : ${User.nom}`);
@@ -74,9 +76,9 @@ router.patch('/', async (req,res) => {
     }
 });
 
-//DELETE USER
+//DELETE USER 
 
-router.delete('/:id', async (req,res) => {
+router.delete('/:id', verifyTokenAndAuthorization ,async (req,res) => {
     try {
         const User = await prisma.utilisateur.delete({
             where : {

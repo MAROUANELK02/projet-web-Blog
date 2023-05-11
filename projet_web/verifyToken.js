@@ -1,72 +1,68 @@
-const { PrismaClient } = require("@prisma/client");
-const jwt = require("jsonwebtoken");
-
+const jwt = require('jsonwebtoken');
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const verifyToken = (req, res, next) => {
-  const authHeader = req.headers.token;
-  if (authHeader) {
-    const token = authHeader.split(" ")[1];
-    jwt.verify(token, process.env.JWT_SEC, (err, user) => {
-      if (err) res.status(403).json("Token is not valid!");
-      req.user = user;
-      next();
-    });
-  } else {
-    return res.status(401).json("You are not authenticated!");
+  const token = req.headers.token;
+  if (!token) {
+    return res.status(401).send({ message: 'No token provided' });
   }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ message: 'Invalid token' });
+    }
+    req.userId = decoded.id;
+    next();
+  });
 };
 
 const verifyTokenAndAuthorization = async (req, res, next) => {
-  verifyToken(req, res, async () => {
-    try {
-      const userId = req.user.id;
-      const user = await prisma.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
-      if (!user) {
-        res.status(404).json("User not found!");
-        return;
-      }
-      if (user.id === req.params.id || user.role === "ADMIN") {
-        next();
-      } else {
-        res.status(403).json("You are not allowed to do that!");
-      }
-    } catch (err) {
-      res.status(500).json(err);
+  try {
+    const user = await prisma.utilisateur.findUnique({
+      where: { id: req.userId },
+      select: { role: true },
+    });
+
+    if (!user) {
+      return res.status(404).send({ message: 'User not found' });
     }
-  });
+
+    if (user.role !== 'ADMIN' && user.id !== req.params.userId) {
+      return res.status(403).send({ message: 'Unauthorized' });
+    }
+
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({ message: 'Internal server error' });
+  }
 };
 
 const verifyTokenAndAdmin = async (req, res, next) => {
-  verifyToken(req, res, async () => {
-    try {
-      const userId = req.user.id;
-      const user = await prisma.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
-      if (!user) {
-        res.status(404).json("User not found!");
-        return;
-      }
-      if (user.role === "ADMIN") {
-        next();
-      } else {
-        res.status(403).json("You are not allowed to do that!");
-      }
-    } catch (err) {
-      res.status(500).json(err);
+  try {
+    const user = await prisma.utilisateur.findUnique({
+      where: { id: req.userId },
+      select: { role: true },
+    });
+
+    if (!user) {
+      return res.status(404).send({ message: 'User not found' });
     }
-  });
+
+    if (user.role !== 'ADMIN') {
+      return res.status(403).send({ message: 'Unauthorized' });
+    }
+
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({ message: 'Internal server error' });
+  }
 };
 
 module.exports = {
   verifyToken,
-  verifyTokenAndAdmin,
   verifyTokenAndAuthorization,
+  verifyTokenAndAdmin,
 };
