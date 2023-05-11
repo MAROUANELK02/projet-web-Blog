@@ -19,7 +19,7 @@ const verifyToken = (req, res, next) => {
 
 const verifyTokenAndAuthorization = async (req, res, next) => {
   try {
-    const user = await prisma.utilisateur.findUnique({
+    const user = prisma.utilisateur.findUnique({
       where: { id: req.userId },
       select: { role: true },
     });
@@ -31,7 +31,7 @@ const verifyTokenAndAuthorization = async (req, res, next) => {
     if (user.role !== 'ADMIN' && user.id !== req.params.userId) {
       return res.status(403).send({ message: 'Unauthorized' });
     }
-
+    console.log(user.id);
     next();
   } catch (error) {
     console.error(error);
@@ -41,7 +41,7 @@ const verifyTokenAndAuthorization = async (req, res, next) => {
 
 const verifyTokenAndAdmin = async (req, res, next) => {
   try {
-    const user = await prisma.utilisateur.findUnique({
+    const user = prisma.utilisateur.findUnique({
       where: { id: req.userId },
       select: { role: true },
     });

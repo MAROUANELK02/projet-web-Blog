@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const {PrismaClient} = require('@prisma/client');
 const bcrypt = require('bcrypt');
-const { verifyToken, verifyTokenAndAuthorization, verifyTokenAndAdmin } = require('../verifyToken');
+const {verifyTokenAndAuthorization, verifyTokenAndAdmin } = require('../verifyToken.js');
 const prisma = new PrismaClient;
 
 //GET USERS
@@ -33,8 +33,7 @@ router.get("/:id", verifyTokenAndAuthorization , async (req,res) => {
             id: parseInt(req.params.id),
         }
         }) 
-    const {password,...others} = User;
-    res.status(200).json(others);
+    res.status(200).json(User);
     }catch(err) {
         res.status(500).send(err);
     }
