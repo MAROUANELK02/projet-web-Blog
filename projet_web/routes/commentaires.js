@@ -72,7 +72,7 @@ router.patch('/', async (req,res) => {
 
 //DELETE COMMENTAIRE
 
-router.delete('/:id', async (req,res) => {
+router.delete('/:id' , async (req,res) => {
     try {
         const Commentaire = await prisma.commentaire.delete({
             where : {
