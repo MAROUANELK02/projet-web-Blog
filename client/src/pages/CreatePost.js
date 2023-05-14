@@ -55,6 +55,7 @@ export default function CreatePost() {
     data.set('nom', category);
     
     async function createNewPost(ev) {
+      
         ev.preventDefault();
         await fetch('http://localhost:5000/articles', {
             method: 'POST',
