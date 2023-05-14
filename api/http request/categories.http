@@ -1,0 +1,9 @@
+
+
+GET http://localhost:5000/categories/
+Content-Type: application/json
+
+###
+
+GET http://localhost:5000/categories/10
+Content-Type: application/json

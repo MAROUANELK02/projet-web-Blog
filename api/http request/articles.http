@@ -1,0 +1,10 @@
+
+
+GET http://localhost:5000/articles/
+Content-Type: application/json
+
+###
+
+GET http://localhost:5000/articles/85
+Content-Type: application/json
+
