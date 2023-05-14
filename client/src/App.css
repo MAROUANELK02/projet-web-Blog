@@ -98,6 +98,22 @@ button{
   padding: 7px 0;
 }
 
-form h1{
+form.login h1, form.register h1{
   text-align: center;
+}
+
+#category-container {
+  margin-bottom: 10px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+select {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
 }

@@ -1,27 +1,29 @@
 import { Link } from "react-router-dom"
-import { useEffect, useState } from "react";
+import { useContext, useEffect} from "react";
+import { UserContext } from "./UserContext";
 
 
 export default function Header() {
-  const [username, setUsername] = useState(null);
+  const {setUserInfo,userInfo} = useContext(UserContext);
   useEffect(() => {
     fetch('http://localhost:5000/auth/profile', {
       credentials: 'include',
     }).then(response => {
       response.json().then(userInfo => {
-        setUsername(userInfo.nom);
+        setUserInfo(userInfo);
       });
     });
-  }, []);  
+  }, [setUserInfo]);  
 
   function logout() {
       fetch('http://localhost:5000/auth/logout',{
         credentials:'include',
         method: 'POST',
       });
-      setUsername(null);
+      setUserInfo(null);
   };
 
+  const username = userInfo?.nom;
 
   return(
         <header>

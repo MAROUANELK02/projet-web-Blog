@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { UserContext } from "../UserContext";
 
 export default function LoginPage() {
         const [email, setEmail] = useState('');
         const [password, setPassword] = useState('');
         const [redirect, setRedirect] = useState(false);
-
+        const {setUserInfo} = useContext(UserContext);
+        
         async function login(ev) {
             ev.preventDefault();
             const response = await fetch('http://localhost:5000/auth/login',{
@@ -15,7 +17,11 @@ export default function LoginPage() {
                 credentials: 'include',
             });
             if(response.ok) {
-                setRedirect(true);
+                response.json().then(userInfo => {
+                    setUserInfo(userInfo);
+                    setRedirect(true);
+                });
+                
             } else {
                 alert('wrong credentials');
             }
@@ -30,11 +36,13 @@ export default function LoginPage() {
             <h1>Login</h1>
             <input type="email" 
             placeholder="email"
-            value={email} onChange={ev => setEmail(ev.target.value)} />
+            value={email} 
+            onChange={ev => setEmail(ev.target.value)} />
             
             <input type="password" 
             placeholder="password"
-            value={password} onChange={ev => setPassword(ev.target.value)}/>
+            value={password} 
+            onChange={ev => setPassword(ev.target.value)}/>
 
             <button>Login</button>
         </form>

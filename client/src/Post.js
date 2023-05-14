@@ -2,7 +2,7 @@ export default function Post() {
     return(
     <div className="post">
     <div className="image">
-        <img src="https://www.shutterstock.com/image-vector/chain-link-icon-vector-260nw-241708024.jpg"></img>
+        <img src="https://cdn.pixabay.com/photo/2022/01/11/21/48/link-6931554__340.png"></img>
         </div>
         <div className="texts">
         <h2>Article n°251</h2>
