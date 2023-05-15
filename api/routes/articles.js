@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const {PrismaClient} = require('@prisma/client');
-const { verifyTokenAndAdmin, verifyToken } = require("../verifyToken");
 const prisma = new PrismaClient;
 
 //GET ARTICLES
@@ -12,10 +11,23 @@ router.get('/', async (req,res) => {
     try{
         const Articles = await prisma.article.findMany({
         take : take,
-        skip : skip
-    })
+        skip : skip,
+        include: {
+            Utilisateur: true,
+        },
+    });
 
-        res.status(200).json(Articles);
+    const articlesWithUserNames = Articles.map((article) => {
+        const author = article.Utilisateur ? article.Utilisateur.nom : "Auteur inconnu";
+        return {
+            titre: article.titre,
+            contenu: article.contenu,
+            image: article.image,
+            createdAt: article.createdAt,
+            author: author,
+        };
+    });
+        res.status(200).json(articlesWithUserNames);
     }catch(err) {
         res.status(500).json(err);
     }
@@ -115,7 +127,7 @@ router.patch('/', async (req,res) => {
 
 //DELETE ARTICLE
 
-router.delete('/:id', verifyTokenAndAdmin ,async (req,res) => {
+router.delete('/:id',async (req,res) => {
     try {
         const Article = await prisma.article.delete({
             where : {

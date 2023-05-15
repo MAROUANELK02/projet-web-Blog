@@ -1,17 +1,24 @@
-export default function Post() {
-    return(
+import React from "react";
+import { formatISO9075 } from "date-fns";
+
+const Post = ({ titre, image, author, createdAt, contenu }) => {
+  return (
     <div className="post">
-    <div className="image">
-        <img src="https://cdn.pixabay.com/photo/2022/01/11/21/48/link-6931554__340.png"></img>
-        </div>
-        <div className="texts">
-        <h2>Article n°251</h2>
+      <div className="image">
+        <img src={image} alt="" />
+      </div>
+      <div className="texts">
+        <h2>{titre}</h2>
         <p className="info">
-          <a className="author">Dawid Paszko</a>
-          <time>2023-01-06</time>
+          <a className="author" href=" ">
+            {author}
+          </a>
+          <time>{formatISO9075(new Date(createdAt))}</time>
         </p>
-        <p className="summary">Article ichihcoisjcijdsojcsdjcsodcsjcsojkôpkdc</p>
+        <p className="contenu">{contenu}</p>
       </div>
     </div>
-    )
-}
+  );
+};
+
+export default Post;
