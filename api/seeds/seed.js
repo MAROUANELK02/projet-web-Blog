@@ -5,7 +5,7 @@ const prisma = new PrismaClient;
 
 //Fonction pour supprimer les données de la DB
 async function clearDatabase() {
-    const transaction = await prisma.$transaction([
+    await prisma.$transaction([
         prisma.categoriesOnArticle.deleteMany(),
         prisma.commentaire.deleteMany(),
         prisma.categorie.deleteMany(),
@@ -99,7 +99,7 @@ async function createArticles() {
             data:{
                 titre: faker.lorem.sentence(),
                 contenu: faker.lorem.paragraphs(),
-                image: faker.image.imageUrl(),
+                image: faker.image.imageUrl(undefined, undefined, undefined, true, `image-seed-${i}`),
                 published: true,
                 utilisateurId: randomAuthorId,
             },
@@ -176,7 +176,7 @@ async function resetIdCounters() {
     }
   }
   
-  
+
 clearDatabase()
     .then(() => resetIdCounters() )
     .then(() => createAuthorUsers())
