@@ -85,7 +85,9 @@ router.get("/categories/:articleId", async (req, res) => {
 //Post Article
 
 router.post("/", uploadMiddleware.single('image'), async (req, res) => {
-    const { titre, contenu,email } = req.body;
+    
+    const { titre, contenu, email, categorieId} = req.body;
+
     const { originalname, path } = req.file;
     const parts = originalname.split('.');
     const ext = parts[parts.length - 1];
@@ -106,8 +108,24 @@ router.post("/", uploadMiddleware.single('image'), async (req, res) => {
           image: newPath,
           published: true,
           utilisateurId: parseInt(user.id),
-        },
-      });
+         categories: {
+                create: [
+                    {
+                    categorie: {
+                        connectOrCreate: {
+                        where: {
+                            id: parseInt(categorieId),
+                        },
+                        create: {
+                            nom: " ",
+                        },
+                        },
+                    },
+                    },
+                ],
+                },
+       }
+    });
       res.status(201).json(post);
     } catch (err) {
       res.status(500).json(err);

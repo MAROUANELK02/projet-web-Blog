@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import ReactQuill from "react-quill";
 import { Navigate } from "react-router-dom";
 import 'react-quill/dist/quill.snow.css';
+import axios from "axios";
 
 const modules = {
   toolbar: [
@@ -31,12 +32,28 @@ export default function CreatePost() {
   const [email, setEmail] = useState('');
   const [files, setFiles] = useState(undefined);
   const [redirect, setRedirect] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try{
+        const response = await axios.get("http://localhost:5000/categories");
+        const categories = response.data;
+        setCategories(categories);
+      }catch(err){
+        console.log("Error fetching categories: ",err);
+      }
+    }
+    fetchCategories();
+  },[setCategories]);
 
   const data = new FormData();
   data.set('titre', title);
   data.set('image', files);
   data.set('contenu', content);
   data.set('email', email);
+  data.set('categorieId', selectedCategory);
 
   async function createNewPost(ev) {
     ev.preventDefault();
@@ -90,6 +107,16 @@ export default function CreatePost() {
         modules={modules}
         formats={formats}
       />
+
+      <select value={selectedCategory} 
+      onChange={(e) => setSelectedCategory(e.target.value)}>
+        <option value="">Sélectionnez une catégorie</option>
+        {categories.map((category) => (
+          <option key={category.id} value={category.id}>
+            {category.nom}
+          </option> 
+        ))}
+      </select>
 
       <button style={{ marginTop: '5px' }}>Create Post</button>
     </form>
