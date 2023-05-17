@@ -117,3 +117,15 @@ select {
   padding: 8px;
   font-size: 14px;
 }
+
+.categories {
+  margin-top: 10px;
+}
+
+.category {
+  display: inline-block;
+  margin-right: 5px;
+  padding: 5px 10px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+}

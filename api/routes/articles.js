@@ -1,37 +1,43 @@
 const router = require("express").Router();
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient;
+const multer = require('multer');
+const uploadMiddleware = multer({ dest: 'uploads/' })
+const fs = require('fs');
 
 //GET ARTICLES
 
-router.get('/', async (req,res) => {
+router.get('/', async (req, res) => {
     const take = parseInt(req.query.take) || 10;
     const skip = parseInt(req.query.skip) || 0;
-
-    try{
-        const Articles = await prisma.article.findMany({
-        take : take,
-        skip : skip,
+  
+    try {
+      const articles = await prisma.article.findMany({
+        take: take,
+        skip: skip,
         include: {
-            Utilisateur: true,
+          Utilisateur: true,
         },
-    });
-
-    const articlesWithUserNames = Articles.map((article) => {
-        const author = article.Utilisateur ? article.Utilisateur.nom : "Auteur inconnu";
+      });
+  
+      const articlesWithUserNames = articles.map((article) => {
+        const { nom } = article.Utilisateur || {}; // Utilisez la déstructuration pour extraire la propriété 'nom' de l'objet 'Utilisateur'
+        const author = nom ? nom : "Auteur inconnu";
         return {
-            titre: article.titre,
-            contenu: article.contenu,
-            image: article.image,
-            createdAt: article.createdAt,
-            author: author,
+          id: article.id,
+          titre: article.titre,
+          contenu: article.contenu,
+          image: article.image,
+          createdAt: article.createdAt,
+          author: author,
         };
-    });
-        res.status(200).json(articlesWithUserNames);
-    }catch(err) {
-        res.status(500).json(err);
+      });
+  
+      res.status(200).json(articlesWithUserNames);
+    } catch (err) {
+      res.status(500).json(err);
     }
-});
+  });
 
 //GET ARTICLE BY ID 
 
@@ -48,47 +54,65 @@ router.get('/:id', async (req,res) => {
     }
 });
 
-//POST ARTICLE
+//GET Categories by articles : 
 
-router.post('/', async (req,res) => {
+router.get("/categories/:articleId", async (req, res) => {
+    const articleId = parseInt(req.params.articleId, 10);
+  
     try {
-
-        const Categorie = await prisma.categorie.findFirst({
-            where : {
-                nom: req.body.nom,
-            }
-        })
-
-        const Article = await prisma.article.create({
-            data: {
-              titre : req.body.titre,
-              contenu : req.body.contenu,
-              image :  req.body.image,
-              utilisateurId : parseInt(req.body.utilisateurId),
-              published : true,
-              categories: {
-                create: [
-                    {
-                    categorie: {
-                        connectOrCreate: {
-                        where: {
-                            id: Categorie.id,
-                        },
-                        create: {
-                            nom: req.body.nom,
-                        },
-                        },
-                    },
-                    },
-                ],
-                },
-               }
-            }) 
-        res.status(200).json(`Article ajouté: ${Article.titre}`);
-    }catch(err) {
-        res.status(500).json(err);
+      // Récupérer l'article avec les catégories associées en utilisant Prisma
+      const article = await prisma.article.findUnique({
+        where: { id: articleId || 0 },
+        include: { categories: true },
+      });
+  
+      const categoryIds = article.categories.map((category) => parseInt(category.categorieId));
+  
+      const categories = await prisma.categorie.findMany({
+        where: {
+          id: { in: categoryIds },
+        },
+      });
+  
+      res.json(categories);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des catégories :", error);
+      res.status(500).json({ message: "Erreur lors de la récupération des catégories" });
     }
-});
+  });
+  
+
+//Post Article
+
+router.post("/", uploadMiddleware.single('image'), async (req, res) => {
+    const { titre, contenu,email } = req.body;
+    const { originalname, path } = req.file;
+    const parts = originalname.split('.');
+    const ext = parts[parts.length - 1];
+    const newPath = path + '.' + ext;
+    fs.renameSync(path, newPath);
+  
+    const user = await prisma.utilisateur.findFirst({
+        where:{
+            email: email,
+        },
+    });
+  
+    try {
+      const post = await prisma.article.create({
+        data: {
+          titre: titre,
+          contenu: contenu,
+          image: newPath,
+          published: true,
+          utilisateurId: parseInt(user.id),
+        },
+      });
+      res.status(201).json(post);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
 
 //UPDATE ARTICLE
 
@@ -110,7 +134,6 @@ router.patch('/', async (req,res) => {
                         },
                         create: {
                             nom: req.body.nom,
-                            id: req.body.id,
                         },
                         },
                     },

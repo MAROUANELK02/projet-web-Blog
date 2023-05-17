@@ -2,14 +2,19 @@ const router = require("express").Router();
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
-const {verifyTokenAndAuthorization, verifyToken} = require('../verifyToken');
+const {verifyToken} = require('../verifyToken');
 
 const prisma = new PrismaClient;
 
 router.post("/register", async (req, res) => {
   const { nom, email, password } = req.body;
-
+  const user = await prisma.utilisateur.findFirst({
+    where: {
+      email : email,
+    }
+  });
   try {
+  if(!user) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.utilisateur.create({
@@ -20,10 +25,13 @@ router.post("/register", async (req, res) => {
       },
     });
 
-    res.status(20).json(newUser);
-  } catch (err) {
-    res.status(500).json(err);
+    res.status(200).json(newUser);
+  }else{
+    res.json("Utilisateur existant !");
   }
+}catch(err){
+  res.status(500).json(err)
+}
 });
 
 router.post("/login", async (req, res) => {
