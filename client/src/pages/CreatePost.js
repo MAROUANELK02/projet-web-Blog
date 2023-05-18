@@ -1,8 +1,9 @@
-import { useState,useEffect } from "react";
+import { useState,useEffect, useContext } from "react";
 import ReactQuill from "react-quill";
 import { Navigate } from "react-router-dom";
 import 'react-quill/dist/quill.snow.css';
 import axios from "axios";
+import { UserContext } from "../UserContext";
 
 const modules = {
   toolbar: [
@@ -29,11 +30,11 @@ const formats = [
 export default function CreatePost() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [email, setEmail] = useState('');
   const [files, setFiles] = useState(undefined);
   const [redirect, setRedirect] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [categories, setCategories] = useState([]);
+  const {userInfo} = useContext(UserContext);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -52,7 +53,7 @@ export default function CreatePost() {
   data.set('titre', title);
   data.set('image', files);
   data.set('contenu', content);
-  data.set('email', email);
+  data.set('userId', userInfo.id);
   data.set('categorieId', selectedCategory);
 
   async function createNewPost(ev) {
@@ -81,13 +82,6 @@ export default function CreatePost() {
 
   return (
     <form onSubmit={createNewPost}>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={ev => setEmail(ev.target.value)}
-      />
-
       <input
         type="text"
         placeholder="Titre"

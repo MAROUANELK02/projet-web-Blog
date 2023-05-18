@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate , Link } from "react-router-dom";
 import { UserContext } from "../UserContext";
 
 export default function LoginPage() {
@@ -32,7 +32,7 @@ export default function LoginPage() {
         }
 
     return (
-        <form className="login" onSubmit={login}>
+            <form className="login" onSubmit={login}>
             <h1>Login</h1>
             <input type="email" 
             placeholder="email"
@@ -45,6 +45,9 @@ export default function LoginPage() {
             onChange={ev => setPassword(ev.target.value)}/>
 
             <button>Login</button>
-        </form>
+            <span style={{ fontStyle: "italic" }}>Vous n'êtes pas encore inscrit ? 
+                <Link to="/register">S'inscrire</Link>
+            </span>
+            </form>
     )
 }

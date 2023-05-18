@@ -16,6 +16,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({credentials:true,origin:'http://localhost:3000'}));
 app.use(morgan('dev'));
+app.use('/uploads', express.static(__dirname + '/uploads'));
 app.use("/users",userRoute);
 app.use("/articles",articleRoute);
 app.use("/categories",categorieRoute);

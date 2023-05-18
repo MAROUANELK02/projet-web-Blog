@@ -1,47 +1,55 @@
-import { Link } from "react-router-dom"
-import { useContext, useEffect} from "react";
+import { Link } from "react-router-dom";
+import { useContext, useEffect } from "react";
 import { UserContext } from "./UserContext";
 
-
 export default function Header() {
-  const {setUserInfo,userInfo} = useContext(UserContext);
+  const { setUserInfo, userInfo } = useContext(UserContext);
+
   useEffect(() => {
-    fetch('http://localhost:5000/auth/profile', {
-      credentials: 'include',
-    }).then(response => {
-      response.json().then(userInfo => {
-        setUserInfo(userInfo);
+    fetch("http://localhost:5000/auth/profile", {
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setUserInfo(data);
       });
-    });
-  }, [setUserInfo]);  
+  }, [setUserInfo]);
 
   function logout() {
-      fetch('http://localhost:5000/auth/logout',{
-        credentials:'include',
-        method: 'POST',
+    fetch("http://localhost:5000/auth/logout", {
+      credentials: "include",
+      method: "POST",
+    }).then(() => {
+        setUserInfo(null);
       });
-      setUserInfo(null);
-  };
+  }
 
   const username = userInfo?.nom;
+  const isAdmin = userInfo?.role === "ADMIN";
 
-  return(
-        <header>
-        <Link to="/" className="logo">MyBlog</Link>
-        <nav>
-          {username && (
-            <>
+  return (
+    <header>
+      <Link to="/" className="logo">
+        MyBlog
+      </Link>
+      <nav>
+        {username ? (
+          <>
+            {isAdmin ? (
+              <>
+              <Link to="/users">Utilisateurs</Link>
+              </> 
+             ) : (<></>) } 
             <Link to="/create">Create new post</Link>
             <Link to="/"><a href=" " onClick={logout}>Logout</a></Link> 
-            </>
-          )}
-          {!username && (
-            <>
-              <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
-            </>
-          )}
-        </nav>
-      </header>
-    )
+          </>
+        ) : (
+          <>
+            <Link to="/login">Login</Link>
+            <Link to="/register">Register</Link>
+          </>
+        )}
+      </nav>
+    </header>
+  );
 }

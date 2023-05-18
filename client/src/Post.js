@@ -5,7 +5,7 @@ const Post = ({ titre, image, author, createdAt, contenu, categories }) => {
   return (
     <div className="post">
       <div className="image">
-        <img src={image} alt="" />
+        <img src={'http://localhost:5000/'+image} alt="" />
       </div>
       <div className="texts">
         <h2>{titre}</h2>

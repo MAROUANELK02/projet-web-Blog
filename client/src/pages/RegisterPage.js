@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 
 export default function RegisterPage() {
     const [nom, setNom] = useState('');
@@ -43,6 +43,9 @@ export default function RegisterPage() {
             value={password} onChange={ev => setPassword(ev.target.value)}/>
             
             <button>Register</button>
+            <span style={{ fontStyle: "italic" }}>Vous êtes déjà inscrit ? 
+                <Link to="/login">Se connecter</Link>
+            </span>
         </form>
     )
 }

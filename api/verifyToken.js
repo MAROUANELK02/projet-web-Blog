@@ -5,11 +5,11 @@ const prisma = new PrismaClient();
 //Vérifier le token
 
 const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization;
+  const {token} = req.cookies;
 
   if (token) {
-    const authToken = token.split(' ')[1]; // Supposant que le token est au format "Bearer <token>"
-    jwt.verify(authToken, process.env.JWT_SEC, (err, decoded) => {
+
+    jwt.verify(token, process.env.JWT_SEC, (err, decoded) => {
       if (err) {
         res.status(403).json("Le token n'est pas valide !");
       } else {

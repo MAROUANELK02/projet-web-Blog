@@ -8,7 +8,7 @@ const fs = require('fs');
 //GET ARTICLES
 
 router.get('/', async (req, res) => {
-    const take = parseInt(req.query.take) || 10;
+    const take = parseInt(req.query.take) || 200;
     const skip = parseInt(req.query.skip) || 0;
   
     try {
@@ -62,7 +62,7 @@ router.get("/categories/:articleId", async (req, res) => {
     try {
       // Récupérer l'article avec les catégories associées en utilisant Prisma
       const article = await prisma.article.findUnique({
-        where: { id: articleId || 0 },
+        where: { id: articleId },
         include: { categories: true },
       });
   
@@ -86,19 +86,13 @@ router.get("/categories/:articleId", async (req, res) => {
 
 router.post("/", uploadMiddleware.single('image'), async (req, res) => {
     
-    const { titre, contenu, email, categorieId} = req.body;
+    const { titre, contenu, userId, categorieId} = req.body;
 
     const { originalname, path } = req.file;
     const parts = originalname.split('.');
     const ext = parts[parts.length - 1];
     const newPath = path + '.' + ext;
     fs.renameSync(path, newPath);
-  
-    const user = await prisma.utilisateur.findFirst({
-        where:{
-            email: email,
-        },
-    });
   
     try {
       const post = await prisma.article.create({
@@ -107,7 +101,7 @@ router.post("/", uploadMiddleware.single('image'), async (req, res) => {
           contenu: contenu,
           image: newPath,
           published: true,
-          utilisateurId: parseInt(user.id),
+          utilisateurId: parseInt(userId),
          categories: {
                 create: [
                     {

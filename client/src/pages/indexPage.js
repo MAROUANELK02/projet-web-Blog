@@ -8,7 +8,8 @@ export default function IndexPage() {
   useEffect(() => {
     async function fetchArticles() {
       try {
-        const response = await axios.get("http://localhost:5000/articles");
+
+        const response = await axios.get('http://localhost:5000/articles');
         const articles = response.data;
  
         // Fetch categories for each article
@@ -20,6 +21,11 @@ export default function IndexPage() {
           })
         ); 
 
+        updatedArticles.sort((a, b) => {
+          const createdAtA = new Date(a.createdAt);
+          const createdAtB = new Date(b.createdAt);
+          return createdAtB - createdAtA;
+        });
         setArticles(updatedArticles);
       } catch (error) {
         console.error("Error fetching articles:", error);

@@ -6,8 +6,8 @@ const prisma = new PrismaClient;
 
 //GET USERS
 
-router.get('/', verifyTokenAndAdmin ,async (req,res) => {
-    const take = parseInt(req.query.take) || 10;
+router.get('/' ,async (req,res) => {
+    const take = parseInt(req.query.take) || 100;
     const skip = parseInt(req.query.skip) || 0;
 
     try{
