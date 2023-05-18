@@ -8,8 +8,8 @@ const fs = require('fs');
 //GET ARTICLES
 
 router.get('/', async (req, res) => {
-    const take = parseInt(req.query.take) || 200;
-    const skip = parseInt(req.query.skip) || 0;
+    const take = parseInt(req.query.take) || 20;
+    const skip = parseInt(req.query.skip) || 95;
   
     try {
       const articles = await prisma.article.findMany({
@@ -45,10 +45,26 @@ router.get('/:id', async (req,res) => {
     try{
        const Article = await prisma.article.findFirst({
         where:{
-            id: parseInt(req.params.id)
-        }
-        }) 
-    res.status(200).json(Article)
+            id: parseInt(req.params.id),
+        },
+        });
+      
+        const author = await prisma.utilisateur.findFirst({
+          where: {
+            id: parseInt(Article.utilisateurId),
+          },
+        });
+          
+          const articleWithUserName = {
+            id: Article.id,
+            titre: Article.titre,
+            contenu: Article.contenu,
+            image: Article.image,
+            createdAt: Article.createdAt,
+            author: author.nom,
+          }
+
+    res.status(200).json(articleWithUserName);
     }catch(err) {
         res.status(500).json(err);
     }

@@ -6,7 +6,7 @@ const { verifyTokenAndAdmin } = require('../verifyToken.js');
 //GET CATEGORIES
 
 router.get('/', async (req,res) => {
-    const take = parseInt(req.query.take) || 10;
+    const take = parseInt(req.query.take) || 100;
     const skip = parseInt(req.query.skip) || 0;
 
     try{

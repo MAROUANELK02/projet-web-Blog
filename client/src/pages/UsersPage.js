@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import Table from 'react-bootstrap/Table';
 
 function UsersPage() {
     const [users, setUsers] = useState([]);
@@ -23,26 +22,26 @@ function UsersPage() {
     }, []);
 
     return (
-        <Table striped bordered hover>
-            <thead>
-                <tr>
-                    <th>id</th>
-                    <th>Nom</th>
-                    <th>Email</th>
-                    <th>Rôle</th>
-                </tr>
-            </thead>
-            <tbody>
-                {users.map((user) => (
-                    <tr key={user.id}>
-                        <td>{user.id}</td>
-                        <td>{user.nom}</td>
-                        <td>{user.email}</td>
-                        <td>{user.role}</td>
-                    </tr>
-                ))}
-            </tbody>
-        </Table>
+        <table className="Table" style={{ borderCollapse: 'collapse', margin: '0 auto', background: 'white' }}>
+    <thead>
+        <tr>
+            <th style={{ border: '1px solid black', padding: '8px' }}>id</th>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Nom</th>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Email</th>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Rôle</th>
+        </tr>
+    </thead>
+    <tbody>
+        {users.map((user) => (
+            <tr key={user.id}>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{user.id}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{user.nom}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{user.email}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{user.role}</td>
+            </tr>
+        ))}
+    </tbody>
+</table>
     );
 }
 
