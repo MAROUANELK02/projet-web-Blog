@@ -57,11 +57,6 @@ div.post {
     }
 }
 
-div.Table {
-  text-align: center;
-  position: relative;
-}
-
 div.post div.texts h2 {
   margin: 0;
   font-size: 1.8rem;
@@ -81,7 +76,7 @@ div.post p.info {
   gap: 5px;
 }
 
-div.post p.info a.author {
+div.post p.info div.author {
   color: #333;
 }
 

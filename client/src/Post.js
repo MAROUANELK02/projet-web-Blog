@@ -27,10 +27,7 @@ const Post = ({ id, titre, image, author, createdAt, categories }) => {
         </Link>
         
         <p className="info">
-          <a className="author" href=" ">
-            {author}
-          </a>
-          <time>{formatISO9075(new Date(createdAt))}</time>
+          <div className="author">{author} <time>{formatISO9075(new Date(createdAt))}</time></div>
         </p>
 
         <div className="categories">

@@ -1,12 +1,12 @@
 const router = require("express").Router();
 const {PrismaClient} = require('@prisma/client');
 const bcrypt = require('bcrypt');
-const {verifyTokenAndAuthorization, verifyTokenAndAdmin } = require('../verifyToken.js');
+const {verifyToken, verifyTokenAndAuthorization, verifyTokenAndAdmin } = require('../verifyToken.js');
 const prisma = new PrismaClient;
 
 //GET USERS
 
-router.get('/' ,async (req,res) => {
+router.get('/',async (req,res) => {
     const take = parseInt(req.query.take) || 100;
     const skip = parseInt(req.query.skip) || 0;
 
@@ -41,13 +41,14 @@ router.get("/:id", verifyTokenAndAuthorization , async (req,res) => {
 
 //POST USER
 
-router.post('/', async (req,res) => {
+router.post('/',verifyTokenAndAdmin, async (req,res) => {
     try {
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
         const User = await prisma.utilisateur.create({
             data: {
                 nom : req.body.nom,
                 email : req.body.email,
-                password : bcrypt.hash(req.body.password,10),
+                password : hashedPassword,
                 role : req.body.role
             }
         })
@@ -59,16 +60,27 @@ router.post('/', async (req,res) => {
 
 //UPDATE USER
 
-router.patch('/', async (req,res) => {
+router.patch('/',verifyToken, async (req,res) => {
     try {
+        if(req.body.password) {
+            const hashedPassword = await bcrypt.hash(req.body.password, 10);
+            const User = await prisma.utilisateur.update({
+                where : {id : req.userId},
+                data : {
+                    nom : req.body.nom,
+                    email : req.body.email,
+                    password : hashedPassword,
+                },
+            });
+            res.status(200).json(`Utilisateur modifié : ${User.nom}`);
+        }
         const User = await prisma.utilisateur.update({
-            where : {id : parseInt(req.body.id) },
+            where : {id : req.userId},
             data : {
                 nom : req.body.nom,
                 email : req.body.email,
-                password : bcrypt.hash(req.body.password,10),
             }
-        })
+        });
         res.status(200).json(`Utilisateur modifié : ${User.nom}`);
     }catch(err) {
         res.status(500).json(err);
