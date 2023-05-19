@@ -61,6 +61,7 @@ router.get('/:id', async (req,res) => {
             contenu: Article.contenu,
             image: Article.image,
             createdAt: Article.createdAt,
+            updatedAt: Article.updatedAt,
             author: author.nom,
           }
 

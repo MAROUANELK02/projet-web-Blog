@@ -3,7 +3,6 @@ import { formatISO9075 } from "date-fns";
 import { Link } from "react-router-dom";
 
 function isGeneratedLink(image) {
-  // Vérifiez si le lien commence par "http://localhost:5000/"
   return image.startsWith('uploads');
 }
 
