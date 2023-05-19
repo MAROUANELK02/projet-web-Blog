@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient;
+const {verifyToken} = require('../verifyToken');
 
 //GET COMMENTAIRES
 
@@ -37,9 +38,15 @@ router.get('/:id', async (req,res) => {
 
 //POST COMMENTAIRE
 
-router.post('/', async (req,res) => {
+router.post('/',verifyToken, async (req,res) => {
     try {
-        const Commentaire = await prisma.commentaire.create({
+        const User = await prisma.utilisateur.findFirst({
+            where: {
+                id: parseInt(req.userId),
+            },
+        });
+        if(User.email === req.body.email) {
+            await prisma.commentaire.create({
             data: {
                email: req.body.email,
                contenu: req.body.contenu,
@@ -47,6 +54,9 @@ router.post('/', async (req,res) => {
             },
         })
         res.status(200).json(`Commentaire ajouté avec succès`);
+        }else{
+            res.json('You are not authorized !');
+        }
     }catch(err) {
         res.status(500).json(err);
     }
@@ -54,36 +64,70 @@ router.post('/', async (req,res) => {
 
 //UPDATE COMMENTAIRE
 
-router.patch('/', async (req,res) => {
+router.patch('/',verifyToken, async (req,res) => {
     try {
-        const Commentaire = await prisma.commentaire.update({
-            where : {id : parseInt(req.body.id) },
-            data : {
-                email: req.body.email,
-                contenu: req.body.contenu,
-                articleId: parseInt(req.body.articleId),
-            }
-        })
-        res.status(200).json(`Commentaire modifié avec succès`);
-    }catch(err) {
-        res.status(500).json(err);
+        const User = await prisma.utilisateur.findFirst({
+            where: {
+                id: parseInt(req.userId),
+            },
+        });
+
+        if(User) {
+            const commentaire = await prisma.commentaire.findFirst({
+            where : {
+                id: parseInt(req.body.id),
+            },
+        });
+        if(commentaire.email === User.email) {
+            await prisma.commentaire.update({
+                where: {id: parseInt(req.body.id)},
+                data: {
+                    contenu: req.body.contenu,
+                },
+            });
+            res.status(200).json(`Commentaire modifié avec succès`);
+        }else{
+            res.json('You are not authorized !');
+        }
+    }else{
+        res.json('Utilisateur non trouvé');
     }
+    }catch(err) {
+            res.status(500).json(err);
+        }
 });
 
 //DELETE COMMENTAIRE
 
-router.delete('/:id' , async (req,res) => {
+router.delete('/:id',verifyToken, async (req,res) => {
     try {
-        const Commentaire = await prisma.commentaire.delete({
+        const User = await prisma.utilisateur.findFirst({
+            where: {
+                id: parseInt(req.userId),
+            },
+        });
+        if(User) {
+            const commentaire = await prisma.commentaire.findFirst({
             where : {
                 id : parseInt(req.params.id)
             }
-        })
-        res.status(200).json(`Commentaire supprimé avec succès`);
+        });
+        if(commentaire.email === User.email) {
+            await prisma.commentaire.delete({
+                where : {
+                    id : parseInt(req.params.id),
+                },
+            });
+            res.status(200).json(`Commentaire supprimé avec succès`);
+        }else{
+            res.json('You are not authorized !');
+        }
+        }else{
+            res.json('Utilisateur non trouvé !');
+        }
     }catch(err) {
         res.status(500).json(err);
     }
 });
-
 
 module.exports = router;
