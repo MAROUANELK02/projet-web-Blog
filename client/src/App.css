@@ -147,6 +147,7 @@ select {
 
 div.post-page div.image{
   max-height: 400px;
+  display: flex;
   overflow: hidden;
 }
 
@@ -180,6 +181,40 @@ div.post-page div.author{
   font-weight: bold;
 }
 
-div.post-page div.content p{
+div.content p{
   line-height: 1.6rem;
+  margin: 30px 0;
+}
+
+div.content li{
+  margin-bottom: 10px;
+}
+
+div.edit-rom {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+div.post-page a.edit-btn{
+  background-color: #222;
+  display: inline-block;
+  align-items: center;
+  gap: 5px;
+  color:#fff;
+  padding: 15px 30px;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+div.post-page button.delete-btn{
+  background-color: #222;
+  display: inline-block;
+  width: 15%;
+  align-items:center;
+  margin-left: 50px;
+  gap: 5px;
+  color:#fff;
+  padding: 15px 30px;
+  border-radius: 5px;
+  text-decoration: none;
 }

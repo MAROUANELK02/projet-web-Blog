@@ -54,7 +54,7 @@ router.post('/', verifyTokenAndAdmin, async (req,res) => {
 
 //UPDATE CATEGORIE
 
-router.patch('/', async (req,res) => {
+router.patch('/',verifyTokenAndAdmin, async (req,res) => {
     try {
         const Categorie = await prisma.categorie.update({
             where : {id : parseInt(req.body.id) },
@@ -70,7 +70,7 @@ router.patch('/', async (req,res) => {
 
 //DELETE CATEGORIE
 
-router.delete('/:id', async (req,res) => {
+router.delete('/:id',verifyTokenAndAdmin, async (req,res) => {
     try {
         const Categorie = await prisma.categorie.delete({
             where : {

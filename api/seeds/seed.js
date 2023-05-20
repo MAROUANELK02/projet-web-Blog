@@ -82,7 +82,7 @@ async function getCategoriesIds() {
 
 // Fonction pour sélectionner de manière aléatoire un ID parmi un tableau d'identifiants
 function getRandomId(ObjectIds) {
-    const randomIndex = Math.floor(Math.random() * ObjectIds.length);
+    const randomIndex = Math.floor(Math.random() * ObjectIds.length)+1;
     return ObjectIds[randomIndex];
   }
 

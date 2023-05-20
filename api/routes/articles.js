@@ -63,7 +63,8 @@ router.get('/:id', async (req,res) => {
             createdAt: Article.createdAt,
             updatedAt: Article.updatedAt,
             author: author.nom,
-          }
+            utilisateurId: Article.utilisateurId,
+          };
 
     res.status(200).json(articleWithUserName);
     }catch(err) {
@@ -145,33 +146,35 @@ router.post("/", uploadMiddleware.single('image'), async (req, res) => {
 
 //UPDATE ARTICLE
 
-router.patch('/', async (req,res) => {
-    try {
+router.patch('/',uploadMiddleware.single('image'), async (req,res) => {
+  let newPath = null;
+  const post = await prisma.article.findFirst({
+    where: {id: parseInt(req.body.id)},
+  });
+  if(req.file) {
+    const { originalname, path } = req.file;
+    const parts = originalname.split('.');
+    const ext = parts[parts.length - 1];
+    newPath = path + '.' + ext;
+    fs.renameSync(path, newPath);  
+  }else{
+    newPath = post.image;
+  }
+  
+  try {
+        if(parseInt(req.body.userId) === parseInt(post.utilisateurId)) {
         const Article = await prisma.article.update({
             where : {id : parseInt(req.body.id) },
             data : {
               titre : req.body.titre,
               contenu : req.body.contenu,
-              image : req.body.image,
-              categories: {
-                create: [
-                    {
-                    categorie: {
-                        connectOrCreate: {
-                        where: {
-                            id: req.body.id,
-                        },
-                        create: {
-                            nom: req.body.nom,
-                        },
-                        },
-                    },
-                    },
-                ],
-                },
-            }
-        })
+              image : newPath,
+            },
+        });
         res.status(200).json(`Article modifié : ${Article.titre}`);
+      }else{
+        res.status(400).json('You are not authorized !');
+      }
     }catch(err) {
         res.status(500).json(err);
     }
@@ -180,13 +183,25 @@ router.patch('/', async (req,res) => {
 //DELETE ARTICLE
 
 router.delete('/:id',async (req,res) => {
-    try {
-        const Article = await prisma.article.delete({
+  const post = await prisma.article.findFirst({
+    where: {id: parseInt(req.params.id)},
+  });  
+  try {
+    if(parseInt(req.body.userId) === parseInt(post.utilisateurId)) {
+      await prisma.categoriesOnArticle.deleteMany({
+        where: {
+          articleId:parseInt(req.params.id),
+        },
+      });
+      const Article = await prisma.article.delete({
             where : {
-                id : parseInt(req.params.id)
+                id : parseInt(req.params.id),
             }
-        })
+        });
         res.status(200).json(`Article supprimé : ${Article.titre}`);
+      }else{
+        res.status(400).json('Problème lors de suppression !');
+      };
     }catch(err) {
         res.status(500).json(err);
     }
