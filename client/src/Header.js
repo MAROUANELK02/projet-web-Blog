@@ -40,7 +40,7 @@ export default function Header() {
               <Link to="/users">Utilisateurs</Link>
               </> 
              ) : (<></>) } 
-            <Link to="/create">Create new post</Link>
+            <Link to="/create">Créer un article</Link>
             <Link to="/"><a href=" " onClick={logout}>Logout</a></Link> 
           </>
         ) : (
