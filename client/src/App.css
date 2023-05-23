@@ -62,6 +62,11 @@ div.post div.texts h2 {
   font-size: 1.8rem;
 }
 
+div.post div.image img {
+  height: 250px;
+  width:max-content;
+}
+
 div.post div.texts a{
   text-decoration: none;
   color: inherit;
