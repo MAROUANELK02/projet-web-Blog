@@ -26,7 +26,10 @@ const Post = ({ id, titre, image, author, createdAt, categories }) => {
         </Link>
         
         <p className="info">
-          <div className="author">{author} <time>{formatISO9075(new Date(createdAt))}</time></div>
+        <div className="author">
+          Publié par : <strong style={{ fontSize: 'larger', fontWeight: 'bold' }}>{author}</strong><br />
+          Créé le : <time style={{ fontSize: 'larger', fontWeight: 'bold' }}><strong>{formatISO9075(new Date(createdAt))}</strong></time>
+        </div>
         </p>
 
         <div className="categories">
