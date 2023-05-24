@@ -2,7 +2,8 @@ import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
 
  export default function Editor({value,onChange}) {
-    const modules = {
+  
+  const modules = {
         toolbar: [
           [{ header: [1, 2, false] }],
           ['bold', 'italic', 'underline', 'strike', 'blockquote'],
@@ -16,6 +17,13 @@ import 'react-quill/dist/quill.snow.css';
           ['clean'],
         ],
       };
+
+    const formats = [
+      'header',
+      'bold', 'italic', 'underline', 'strike', 'blockquote',
+      'list', 'bullet', 'indent',
+      'link', 'image'
+    ];
    
     return (
         <div className="content">
@@ -24,7 +32,8 @@ import 'react-quill/dist/quill.snow.css';
                 theme={'snow'}
                 onChange={onChange}
                 modules={modules}
+                formats={formats}
             />
-        </div>
+      </div>
     )
  }

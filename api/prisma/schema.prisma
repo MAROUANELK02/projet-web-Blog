@@ -49,7 +49,7 @@ model CategoriesOnArticle {
 
 model Commentaire {
   id Int @id @default(autoincrement())
-  email     String   @unique @map("email") @db.VarChar(255)
+  email     String   @map("email") @db.VarChar(255)
   contenu   String?  @db.LongText
   Article   Article? @relation(fields: [articleId], references: [id])
   articleId Int?

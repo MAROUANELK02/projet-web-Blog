@@ -1,4 +1,4 @@
-* {
+*{
   box-sizing: border-box;
   background-color: #b9e7e7;
 }
@@ -222,4 +222,21 @@ div.post-page button.delete-btn{
   padding: 15px 30px;
   border-radius: 5px;
   text-decoration: none;
+}
+
+.comment {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f0f2f5;
+}
+
+.comment-email {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.comment-text {
+  margin-left: 20px;
 }

@@ -1,77 +1,98 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import {formatISO9075} from "date-fns";
-import {UserContext} from "../UserContext";
+import { formatISO9075 } from "date-fns";
+import { UserContext } from "../UserContext";
+import Commentaire from '../Comments';
 
 function isGeneratedLink(image) {
-    return image.startsWith('uploads');
-  }
+  return image.startsWith('uploads');
+}
 
 export default function PostPage() {
-    const [postInfo, setPostInfo] = useState(null);
-    const [redirect, setRedirect] = useState(false);
-    const {id} = useParams();
-    const {userInfo} = useContext(UserContext);
+  const [postInfo, setPostInfo] = useState(null);
+  const [comments, setComments] = useState(null);
+  const [redirect, setRedirect] = useState(false);
+  const { id } = useParams();
+  const { userInfo } = useContext(UserContext);
 
-    useEffect(() => {
-        fetch(`http://localhost:5000/articles/${id}`)
-        .then((response) => {
-                response.json().then((postInfo) => {
-                        setPostInfo(postInfo);
-                });
-            }
-        )
-    },[id]);
-
-    if(!postInfo) return '';
-
-    async function DeletePost() {
-      try {
-        const response = await fetch(`http://localhost:5000/articles/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: userInfo.id,
-          }),
-          credentials: 'include',
+  useEffect(() => {
+    fetch(`http://localhost:5000/articles/${id}`)
+      .then((response) => {
+        response.json().then((postInfo) => {
+          setPostInfo(postInfo);
         });
-    
-        if (response.ok) {
-          alert('Article supprimé avec succès !');
-          setRedirect(true);
-        } else {
-          alert("Vous n'êtes pas autorisé à supprimer l'article !");
-        }
-      } catch (error) {
-        console.error(error);
+      });
+  }, [id]);
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/commentaires/comments/${id}`)
+      .then((response) => {
+        response.json().then((comments) => {
+          setComments(comments);
+        });
+      });
+  }, [id]);
+
+  if (!postInfo) return '';
+
+  // Function that allows post deletion
+  async function DeletePost() {
+    try {
+      const response = await fetch(`http://localhost:5000/articles/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userInfo.id,
+        }),
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        alert('Article supprimé avec succès !');
+        setRedirect(true);
+      } else {
+        alert("Vous n'êtes pas autorisé à supprimer l'article !");
       }
+    } catch (error) {
+      console.error(error);
     }
-    
-    if(redirect) {
-      return <Navigate to={'/'} />
     }
 
-    return (
-        <div className="post-page">
-        <h1> {postInfo.titre} </h1>
-        <time>Created at : {formatISO9075(new Date(postInfo.createdAt))}</time>   
-        <div className="author">By : {postInfo.author} </div>
-        {parseInt(userInfo.id) === parseInt(postInfo.utilisateurId) && (
-            <div className="edit-rom"> 
-                <Link to={`/edit/${postInfo.id}`} className="edit-btn">Editer l'article</Link>
-                <button className="delete-btn" onClick={DeletePost}>Supprimer</button>
-            </div> 
-        )}   
-        <div className="image">
-          {isGeneratedLink(postInfo.image) ? (
-            <img src={'http://localhost:5000/' + postInfo.image} alt="" />  
-          ) : (
-            <img src={postInfo.image} alt="" />
-          )}
+  if (redirect) {
+    return <Navigate to={'/'} />;
+  }
+
+  return (
+    <div className="post-page">
+      <h1>{postInfo.titre}</h1>
+      <time>Created at: {formatISO9075(new Date(postInfo.createdAt))}</time>
+      <div className="author">By: {postInfo.author}</div>
+      {parseInt(userInfo.id) === parseInt(postInfo.utilisateurId) && (
+        <div className="edit-rom">
+          <Link to={`/edit/${postInfo.id}`} className="edit-btn">Editer</Link>
+          <button className="delete-btn" onClick={DeletePost}>Supprimer</button>
         </div>
-        <div className="contenu" dangerouslySetInnerHTML={{__html:postInfo.contenu}}/>
-        </div>
-    )
+      )}
+
+      <div className="image">
+        {isGeneratedLink(postInfo.image) ? (
+          <img src={'http://localhost:5000/' + postInfo.image} alt="" />
+        ) : (
+          <img src={postInfo.image} alt="" />
+        )}
+      </div>
+
+      <div className="contenu" dangerouslySetInnerHTML={{ __html: postInfo.contenu }} />
+      
+      <div className="comments"><br></br>
+        <strong>Commentaires : </strong><br></br>
+        {comments && comments.map((comment) => {
+          return <Commentaire email={comment.email} comment={comment.contenu} />;
+        })}
+      </div>
+
+    </div>
+  );
 }

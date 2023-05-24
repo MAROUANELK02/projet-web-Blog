@@ -3,7 +3,7 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient;
 const {verifyToken} = require('../verifyToken');
 
-//GET COMMENTAIRES
+//GET COMMENTS
 
 router.get('/', async (req,res) => {
     const take = parseInt(req.query.take) || 10;
@@ -21,7 +21,7 @@ router.get('/', async (req,res) => {
     }
 });
 
-//GET COMMENTAIRE BY ID 
+//GET COMMENT BY ID 
 
 router.get('/:id', async (req,res) => {
     try{
@@ -36,30 +36,36 @@ router.get('/:id', async (req,res) => {
     }
 });
 
-//POST COMMENTAIRE
+//GET COMMENTS BY ARTICLEID
 
-router.post('/',verifyToken, async (req,res) => {
-    try {
-        const User = await prisma.utilisateur.findFirst({
-            where: {
-                id: parseInt(req.userId),
-            },
-        });
-        if(User.email === req.body.email) {
-            await prisma.commentaire.create({
-            data: {
-               email: req.body.email,
-               contenu: req.body.contenu,
-               articleId: parseInt(req.body.articleId),
-            },
-        })
-        res.status(200).json(`Commentaire ajouté avec succès`);
-        }else{
-            res.json('You are not authorized !');
+router.get('/comments/:id', async (req,res) => {
+    try{
+       const Commentaire = await prisma.commentaire.findMany({
+        where:{
+            articleId: parseInt(req.params.id)
         }
+        }); 
+    res.status(200).json(Commentaire);
     }catch(err) {
         res.status(500).json(err);
-    }
+    };
+});
+
+//POST COMMENTAIRE
+
+router.post('/', async (req,res) => {
+    try {
+            await prisma.commentaire.create({
+                data: {
+                email: req.body.email,
+                contenu: req.body.contenu,
+                articleId: parseInt(req.body.articleId),
+            },
+            });
+        res.status(200).json(`Commentaire ajouté avec succès`);
+    }catch(err) {
+        res.status(500).json(err);
+    };
 });
 
 //UPDATE COMMENTAIRE
